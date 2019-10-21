@@ -21,13 +21,13 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
 
         logger.log(`Launching adapter at: '${adapterExePath}', ${JSON.stringify(arguments) })`);
         // Check exists
-        if (!fs.existsSync(adapterExePath)) {
+/*         if (!fs.existsSync(adapterExePath)) {
             if (utils.getPlatform() == utils.Platform.Windows) {
                 return utils.errP(`No Edge Diagnostics Adapter was found. Install the Edge Diagnostics Adapter (https://github.com/Microsoft/edge-diagnostics-adapter) and specify a valid 'adapterExecutable' path`);
             } else {
                 return utils.errP(`Edge debugging is only supported on Windows 10.`);
             }
-        }
+        } */
 
         let adapterArgs:string[] = [];
         if (!args.port) {
@@ -58,8 +58,12 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
             }
 
         }, error => {
-            logger.log(`spawn('${adapterExePath}', ${JSON.stringify(adapterArgs) })`);
-            this._adapterProc = childProcess.execFile(adapterExePath, adapterArgs, (err) => {
+            const adapterPath = require.resolve("edge-diagnostics-adapter");
+            const adpaterFile = path.resolve(adapterPath, "../edgeAdapter.js");
+            const adapterLaunch: string = `node ${adpaterFile}`;
+            logger.log(`spawn('${adapterLaunch}')`);
+            //@ts-ignore
+            this._adapterProc = childProcess.exec(adapterLaunch, (err) => {
                     logger.error(`Adapter error: ${err}`);
                     this.terminateSession(err);
                 }, (data) => {
