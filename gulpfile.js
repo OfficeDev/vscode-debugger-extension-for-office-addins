@@ -30,12 +30,12 @@ gulp.task('build', function () {
          .pipe(gulp.dest('out'));
 });
 
-gulp.task('watch', ['build'], function(cb) {
+gulp.task('watch', gulp.series('build'), function(cb) {
     log('Watching build sources...');
-    return gulp.watch(sources, ['build']);
+    return gulp.watch(sources, gulp.series('build'));
 });
 
-gulp.task('default', ['build']);
+gulp.task('default', gulp.series('build'));
 
 gulp.task('tslint', function() {
     return gulp.src(lintSources, { base: '.' })
@@ -52,9 +52,9 @@ function test() {
         });
 }
 
-gulp.task('build-test', ['build'], test);
+gulp.task('build-test', gulp.series('build'), test);
 gulp.task('test', test);
 
-gulp.task('watch-build-test', ['build', 'build-test'], function() {
-    return gulp.watch(sources, ['build', 'build-test']);
+gulp.task('watch-build-test', gulp.series('build', 'build-test'), function() {
+    return gulp.watch(sources, gulp.series('build', 'build-test'));
 });
