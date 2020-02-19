@@ -2,34 +2,42 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import {ChromeDebugAdapter, IChromeDebugSessionOpts, ChromeDebugSession, utils, logger} from 'vscode-chrome-debug-core';
-import {EdgeDebugSession} from './edgeDebugSession';
+import { ChromeDebugAdapter, ISourceMapPathOverrides, IChromeDebugSessionOpts, ChromeDebugSession, utils, logger } from 'vscode-chrome-debug-core';
+import { EdgeDebugSession } from './edgeDebugSession';
 import * as edgeUtils from './utilities';
 import * as childProcess from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 
+const DefaultWebSourceMapPathOverrides: ISourceMapPathOverrides = {
+    'webpack:///./~/*': '${webRoot}/node_modules/*',
+    'webpack:///./*': '${webRoot}/*',
+    'webpack:///*': '*',
+    'webpack:///src/*': '${webRoot}/*',
+    'meteor://💻app/*': '${webRoot}/*'
+};
+
 export class EdgeDebugAdapter extends ChromeDebugAdapter {
     private _adapterProc: childProcess.ChildProcess;
 
     //private _launchAdapter(url?:string, port?:number, adapterExePath?:string ):Promise<any> {
-    private _launchAdapter(args?:any):Promise<any> {
+    private _launchAdapter(args?: any): Promise<any> {
         let adapterExePath = args.runtimeExecutable;
         if (!adapterExePath) {
             adapterExePath = edgeUtils.getAdapterPath();
         }
 
-        logger.log(`Launching adapter at: '${adapterExePath}', ${JSON.stringify(arguments) })`);
+        logger.log(`Launching adapter at: '${adapterExePath}', ${JSON.stringify(arguments)})`);
         // Check exists
-/*         if (!fs.existsSync(adapterExePath)) {
-            if (utils.getPlatform() == utils.Platform.Windows) {
-                return utils.errP(`No Edge Diagnostics Adapter was found. Install the Edge Diagnostics Adapter (https://github.com/Microsoft/edge-diagnostics-adapter) and specify a valid 'adapterExecutable' path`);
-            } else {
-                return utils.errP(`Edge debugging is only supported on Windows 10.`);
-            }
-        } */
+        /*         if (!fs.existsSync(adapterExePath)) {
+                    if (utils.getPlatform() == utils.Platform.Windows) {
+                        return utils.errP(`No Edge Diagnostics Adapter was found. Install the Edge Diagnostics Adapter (https://github.com/Microsoft/edge-diagnostics-adapter) and specify a valid 'adapterExecutable' path`);
+                    } else {
+                        return utils.errP(`Edge debugging is only supported on Windows 10.`);
+                    }
+                } */
 
-        let adapterArgs:string[] = [];
+        let adapterArgs: string[] = [];
         if (!args.port) {
             args.port = 9222;
         }
@@ -37,18 +45,20 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         let portCmdArg = '--port=' + args.port;
         adapterArgs.push(portCmdArg);
 
-        if(args.url){
-            let launchUrlArg = '--launch='+ args.url;
+        args.sourceMapPathOverrides = this.getSourceMapPathOverrides(args.webRoot, args.sourceMapPathOverrides);
+
+        if (args.url) {
+            let launchUrlArg = '--launch=' + args.url;
             adapterArgs.push(launchUrlArg);
         }
 
         // The adapter might already be running if so don't spawn a new one
-        return utils.getURL(`http://127.0.0.1:${args.port}/json/version`).then((jsonResponse:any) => {
+        return utils.getURL(`http://127.0.0.1:${args.port}/json/version`).then((jsonResponse: any) => {
             try {
                 const responseArray = JSON.parse(jsonResponse);
-                let targetBrowser:string = responseArray.Browser;
+                let targetBrowser: string = responseArray.Browser;
                 targetBrowser = targetBrowser.toLocaleLowerCase();
-                if(targetBrowser.indexOf('edge') > -1){
+                if (targetBrowser.indexOf('edge') > -1) {
                     return Promise.resolve(args);
                 }
 
@@ -64,10 +74,10 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
             logger.log(`spawn('${adapterLaunch}')`);
             //@ts-ignore
             this._adapterProc = childProcess.exec(adapterLaunch, (err) => {
-                    logger.error(`Adapter error: ${err}`);
-                    this.terminateSession(err);
-                }, (data) => {
-                    logger.log(`Adapter output: ${data}`);
+                logger.error(`Adapter error: ${err}`);
+                this.terminateSession(err);
+            }, (data) => {
+                logger.log(`Adapter output: ${data}`);
             });
 
             return Promise.resolve(args);
@@ -75,8 +85,7 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
     }
 
     public constructor(opts?: IChromeDebugSessionOpts, debugSession?: ChromeDebugSession) {
-        if(debugSession == null)
-        {
+        if (debugSession == null) {
             debugSession = new EdgeDebugSession(false);
         }
         super(opts, debugSession);
@@ -92,7 +101,7 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
             launchUrl = args.url;
         }
 
-        return this._launchAdapter(args).then((attachArgs:any) =>{
+        return this._launchAdapter(args).then((attachArgs: any) => {
             return super.attach(attachArgs);
         });
     }
@@ -100,7 +109,7 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
     public attach(args: any): Promise<void> {
         logger.log(`Attaching to Edge`);
 
-        return this._launchAdapter(args).then((attachArgs:any) =>{
+        return this._launchAdapter(args).then((attachArgs: any) => {
             return super.attach(attachArgs);
         });
     }
@@ -112,6 +121,43 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         }
 
         super.clearTargetContext();
+    }
+
+    private getSourceMapPathOverrides(webRoot: string, sourceMapPathOverrides?: ISourceMapPathOverrides): ISourceMapPathOverrides {
+        return sourceMapPathOverrides ? this.resolveWebRootPattern(webRoot, sourceMapPathOverrides, /*warnOnMissing=*/true) :
+            this.resolveWebRootPattern(webRoot, DefaultWebSourceMapPathOverrides, /*warnOnMissing=*/false);
+    }
+
+    /**
+     * Returns a copy of sourceMapPathOverrides with the ${webRoot} pattern resolved in all entries.
+     *
+     * dynamically required by test
+     */
+    private resolveWebRootPattern(webRoot: string, sourceMapPathOverrides: ISourceMapPathOverrides, warnOnMissing: boolean): ISourceMapPathOverrides {
+        const resolvedOverrides: ISourceMapPathOverrides = {};
+        for (let pattern in sourceMapPathOverrides) {
+            const replacePattern = this.replaceWebRootInSourceMapPathOverridesEntry(webRoot, pattern, warnOnMissing);
+            const replacePatternValue = this.replaceWebRootInSourceMapPathOverridesEntry(webRoot, sourceMapPathOverrides[pattern], warnOnMissing);
+
+            resolvedOverrides[replacePattern] = path.resolve(replacePatternValue);
+        }
+
+        return resolvedOverrides;
+    }
+
+    private replaceWebRootInSourceMapPathOverridesEntry(webRoot: string, entry: string, warnOnMissing: boolean): string {
+        const webRootIndex = entry.indexOf('${webRoot}');
+        if (webRootIndex === 0) {
+            if (webRoot) {
+                return entry.replace('${webRoot}', webRoot);
+            } else if (warnOnMissing) {
+                logger.log('Warning: sourceMapPathOverrides entry contains ${webRoot}, but webRoot is not set');
+            }
+        } else if (webRootIndex > 0) {
+            logger.log('Warning: in a sourceMapPathOverrides entry, ${webRoot} is only valid at the beginning of the path');
+        }
+
+        return entry;
     }
 }
 
