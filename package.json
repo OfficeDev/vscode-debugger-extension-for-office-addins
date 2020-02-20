@@ -1,7 +1,7 @@
 {
-  "name": "debugger-for-edge",
-  "displayName": "Debugger for Edge",
-  "version": "0.4.1",
+  "name": "debugger-for-office-addins",
+  "displayName": "Debugger for Office Addins",
+  "version": "2.0.1",
   "icon": "images/icon.png",
   "description": "Debug your JavaScript code in the Edge browser.",
   "repository": {
@@ -21,7 +21,7 @@
     "edge-diagnostics-adapter": "0.3.2",
     "gulp-cli": "^1.3.0",
     "source-map": "^0.5.3",
-    "vscode-chrome-debug-core": "3.12.8",
+    "vscode-chrome-debug-core": "3.23.10",
     "ws": "0.8.0"
   },
   "devDependencies": {
