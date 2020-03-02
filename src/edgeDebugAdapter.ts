@@ -20,22 +20,21 @@ const DefaultWebSourceMapPathOverrides: ISourceMapPathOverrides = {
 export class EdgeDebugAdapter extends ChromeDebugAdapter {
     private _adapterProc: childProcess.ChildProcess;
 
-    //private _launchAdapter(url?:string, port?:number, adapterExePath?:string ):Promise<any> {
     private _launchAdapter(args?: any): Promise<any> {
         let adapterExePath = args.runtimeExecutable;
         if (!adapterExePath) {
             adapterExePath = edgeUtils.getAdapterPath();
         }
 
-        logger.log(`Launching adapter at: '${adapterExePath}', ${JSON.stringify(arguments)})`);
+        logger.log(`Launching adapter at with arguments:', ${JSON.stringify(arguments)})`);
         // Check exists
-        /*         if (!fs.existsSync(adapterExePath)) {
-                    if (utils.getPlatform() == utils.Platform.Windows) {
-                        return utils.errP(`No Edge Diagnostics Adapter was found. Install the Edge Diagnostics Adapter (https://github.com/Microsoft/edge-diagnostics-adapter) and specify a valid 'adapterExecutable' path`);
-                    } else {
-                        return utils.errP(`Edge debugging is only supported on Windows 10.`);
-                    }
-                } */
+        if (!fs.existsSync(adapterExePath)) {
+            if (utils.getPlatform() == utils.Platform.Windows) {
+                return utils.errP(`No Edge Diagnostics Adapter was found. Install the Edge Diagnostics Adapter (https://github.com/Microsoft/edge-diagnostics-adapter) and specify a valid 'adapterExecutable' path`);
+            } else {
+                return utils.errP(`Edge debugging is only supported on Windows 10.`);
+            }
+        }
 
         let adapterArgs: string[] = [];
         if (!args.port) {
@@ -68,9 +67,9 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
             }
 
         }, error => {
-            const adapterPath = require.resolve("edge-diagnostics-adapter");
-            const adpaterFile = path.resolve(adapterPath, "../edgeAdapter.js");
-            const adapterLaunch: string = `node ${adpaterFile}`;
+            const adapterPath = path.resolve(__dirname, '../../node_modules/edge-diagnostics-adapter');
+            const adpaterFile = path.join(adapterPath, "out/src/edgeAdapter.js");
+            const adapterLaunch: string = `node ${adpaterFile}  --servetools --diagnostics`;
             logger.log(`spawn('${adapterLaunch}')`);
             //@ts-ignore
             this._adapterProc = childProcess.exec(adapterLaunch, (err) => {
