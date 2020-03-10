@@ -11,6 +11,7 @@ tsd.json
 tslint.json
 
 out/test/**
+src/.vscode/**
 
 node_modules/ws/node_modules/bufferutil/**
 node_modules/ws/node_modules/utf-8-validate/**
