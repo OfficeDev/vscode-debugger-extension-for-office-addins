@@ -14,7 +14,7 @@ const DefaultWebSourceMapPathOverrides: ISourceMapPathOverrides = {
     'webpack:///./*': '${webRoot}/*',
     'webpack:///*': '*',
     'webpack:///src/*': '${webRoot}/*',
-    'meteor://💻app/*': '${webRoot}/*'
+    'meteor://app/*': '${webRoot}/*'
 };
 
 export class EdgeDebugAdapter extends ChromeDebugAdapter {
@@ -71,12 +71,20 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
             const adpaterFile = path.join(adapterPath, "out/src/edgeAdapter.js");
             const adapterLaunch: string = `node ${adpaterFile}  --servetools --diagnostics`;
             logger.log(`spawn('${adapterLaunch}')`);
-            //@ts-ignore
-            this._adapterProc = childProcess.exec(adapterLaunch, (err) => {
+            this._adapterProc = childProcess.spawn(adapterLaunch, [], {
+                detached: false,
+                shell: true,
+                stdio: "ignore",
+                windowsHide: true
+            });
+
+            this._adapterProc.on("error", (err) => {
                 logger.error(`Adapter error: ${err}`);
-                this.terminateSession(err);
-            }, (data) => {
-                logger.log(`Adapter output: ${data}`);
+                this.terminateSession(`${err}`);
+            });
+
+            this._adapterProc.on("data", (data) => {
+                logger.log(`Adapter output: ${data}`)
             });
 
             return Promise.resolve(args);
@@ -134,11 +142,9 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
      */
     private resolveWebRootPattern(webRoot: string, sourceMapPathOverrides: ISourceMapPathOverrides, warnOnMissing: boolean): ISourceMapPathOverrides {
         const resolvedOverrides: ISourceMapPathOverrides = {};
-        for (let pattern in sourceMapPathOverrides) {
-            const replacePattern = this.replaceWebRootInSourceMapPathOverridesEntry(webRoot, pattern, warnOnMissing);
-            const replacePatternValue = this.replaceWebRootInSourceMapPathOverridesEntry(webRoot, sourceMapPathOverrides[pattern], warnOnMissing);
-
-            resolvedOverrides[replacePattern] = path.resolve(replacePatternValue);
+        for (let [key, value] of Object.entries(sourceMapPathOverrides)) {
+            const replacePatternValue = this.replaceWebRootInSourceMapPathOverridesEntry(webRoot, value, warnOnMissing);
+            resolvedOverrides[key] = path.resolve(replacePatternValue);
         }
 
         return resolvedOverrides;

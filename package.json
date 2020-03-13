@@ -25,7 +25,7 @@
     "ws": "^7.2.1"
   },
   "devDependencies": {
-    "@types/node": "^6.0.40",
+    "@types/node": "^13.9.1",
     "gulp": "^4.0.2",
     "gulp-mocha": "^7.0.2",
     "gulp-sourcemaps": "^2.6.5",
