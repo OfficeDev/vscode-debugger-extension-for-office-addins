@@ -6,10 +6,10 @@
   "description": "Debug your Desktop Office Taskpane Add-ins in VS Code.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Microsoft/vscode-edge-debug"
+    "url": "https://github.com/OfficeDev/vscode-debugger-extension-for-office-addins"
   },
   "publisher": "msoffice",
-  "bugs": "https://github.com/microsoft/vscode-edge-debug/issues",
+  "bugs": "https://github.com/OfficeDev/vscode-debugger-extension-for-office-addins/issues",
   "engines": {
     "vscode": "*"
   },
@@ -47,13 +47,6 @@
       {
         "type": "edge",
         "label": "Edge",
-        "enableBreakpointsFor": {
-          "languageIds": [
-            "javascript",
-            "typescriptreact",
-            "typescript"
-          ]
-        },
         "program": "./out/src/edgeDebug.js",
         "runtime": "node",
         "initialConfigurations": [
