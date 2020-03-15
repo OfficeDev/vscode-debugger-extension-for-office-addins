@@ -30,7 +30,7 @@
     "gulp-mocha": "^7.0.2",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-tslint": "^8.1.4",
-    "gulp-typescript": "^6.0.0-alpha.1",
+    "gulp-typescript": "^3.1.6",
     "gulp-util": "^3.0.8",
     "mocha": "^7.1.0",
     "mockery": "^2.1.0",
