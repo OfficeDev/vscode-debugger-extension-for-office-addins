@@ -67,7 +67,7 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
             }
 
         }, error => {
-            const adapterPath = path.resolve(__dirname, '../../node_modules/edge-diagnostics-adapter');
+            const adapterPath = path.resolve(__dirname, '../../node_modules/debug-adapter-for-office-addins');
             const adpaterFile = path.join(adapterPath, "out/src/edgeAdapter.js");
             const adapterLaunch: string = `node ${adpaterFile}  --servetools --diagnostics`;
             logger.log(`spawn('${adapterLaunch}')`);

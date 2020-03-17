@@ -8,7 +8,7 @@ import * as os from 'os';
 
 const EDGE_ADAPTER_PATH = {
     OSX: '',
-    WINx64: path.resolve(__dirname, '../../node_modules/edge-diagnostics-adapter/out/lib/Networkproxy.exe'),
+    WINx64: path.resolve(__dirname, '../../node_modules/debug-adapter-for-office-addins/out/lib/Networkproxy.exe'),
     LINUX: ''
 };
 

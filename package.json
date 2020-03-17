@@ -18,29 +18,25 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "edge-diagnostics-adapter": "0.3.2",
-    "gulp-cli": "^2.2.0",
+    "debug-adapter-for-office-addins": "^1.0.6",
     "source-map": "^0.7.3",
     "vscode-chrome-debug-core": "^6.8.8",
     "ws": "^7.2.1"
   },
   "devDependencies": {
+    "@types/mocha": "^7.0.2",
     "@types/node": "^13.9.1",
-    "gulp": "^4.0.2",
-    "gulp-mocha": "^7.0.2",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp-tslint": "^8.1.4",
-    "gulp-typescript": "^3.1.6",
-    "gulp-util": "^3.0.8",
+    "concurrently": "^5.1.0",
     "mocha": "^7.1.0",
     "mockery": "^2.1.0",
+    "rimraf": "^3.0.2",
     "sinon": "^9.0.1",
-    "tslint": "^6.0.0",
+    "tslint": "^6.1.0",
     "typescript": "^3.8.3"
   },
   "scripts": {
-    "test": "node ./node_modules/mocha/bin/mocha --recursive -u tdd ./out/test/",
-    "build": "node ./node_modules/gulp/bin/gulp.js build"
+    "test": "mocha -r ts-node/register test/*.ts",
+    "build": "tsc -p tsconfig.json"
   },
   "contributes": {
     "debuggers": [
