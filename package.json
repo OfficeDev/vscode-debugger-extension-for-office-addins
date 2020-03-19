@@ -27,7 +27,7 @@
     "@types/mocha": "^7.0.2",
     "@types/node": "^13.9.1",
     "concurrently": "^5.1.0",
-    "mocha": "^7.1.0",
+    "mocha": "^7.1.1",
     "mockery": "^2.1.0",
     "rimraf": "^3.0.2",
     "sinon": "^9.0.1",
@@ -41,30 +41,33 @@
   "contributes": {
     "debuggers": [
       {
-        "type": "edge",
-        "label": "Edge",
+        "type": "office-addin",
+        "label": "Office Addin",
         "program": "./out/src/edgeDebug.js",
         "runtime": "node",
         "initialConfigurations": [
           {
             "name": "Launch index.html",
-            "type": "edge",
+            "type": "office-addin",
             "request": "launch",
-            "file": "${workspaceRoot}/index.html"
+            "file": "${workspaceRoot}/index.html",
+            "browserTarget": "Edge"
           },
           {
             "name": "Launch localhost with sourcemaps",
-            "type": "edge",
+            "type": "office-addin",
             "request": "launch",
             "url": "http://localhost/mypage.html",
             "sourceMaps": true,
-            "webRoot": "wwwroot"
+            "webRoot": "wwwroot",
+            "webviewTarget": "Edge"
           },
           {
             "name": "Attach",
-            "type": "edge",
+            "type": "office-addin",
             "request": "attach",
-            "port": 9222
+            "port": 9222,
+            "webviewTarget": "Edge"
           }
         ],
         "configurationAttributes": {
@@ -75,6 +78,16 @@
                 "type": "number",
                 "description": "Port to use for Chrome remote debugging.",
                 "default": 9222
+              },
+              "browserTarget": {
+                "type": "string",
+                "description": "Browser type to launch",
+                "default": "Edge"
+              },
+              "webviewTarget": {
+                "type": "string",
+                "description": "Webview used by addin",
+                "default": "Edge"
               },
               "address": {
                 "type": "string",
