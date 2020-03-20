@@ -2,20 +2,12 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import { ChromeDebugAdapter, ISourceMapPathOverrides, IChromeDebugSessionOpts, ChromeDebugSession, utils, logger } from 'vscode-chrome-debug-core';
+import { ChromeDebugAdapter, IChromeDebugSessionOpts, ChromeDebugSession, utils, logger } from 'vscode-chrome-debug-core';
 import { EdgeDebugSession } from './edgeDebugSession';
 import * as edgeUtils from './utilities';
 import * as childProcess from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
-
-const DefaultWebSourceMapPathOverrides: ISourceMapPathOverrides = {
-    'webpack:///./~/*': '${webRoot}/node_modules/*',
-    'webpack:///./*': '${webRoot}/*',
-    'webpack:///*': '*',
-    'webpack:///src/*': '${webRoot}/*',
-    'meteor://app/*': '${webRoot}/*'
-};
 
 export class EdgeDebugAdapter extends ChromeDebugAdapter {
     private _adapterProc: childProcess.ChildProcess;
@@ -44,7 +36,7 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         let portCmdArg = '--port=' + args.port;
         adapterArgs.push(portCmdArg);
 
-        args.sourceMapPathOverrides = this.getSourceMapPathOverrides(args.webRoot, args.sourceMapPathOverrides);
+        args.sourceMapPathOverrides = edgeUtils.getSourceMapPathOverrides(args.webRoot, args.sourceMapPathOverrides);
 
         if (args.url) {
             let launchUrlArg = '--launch=' + args.url;
@@ -128,41 +120,6 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         }
 
         super.clearTargetContext();
-    }
-
-    private getSourceMapPathOverrides(webRoot: string, sourceMapPathOverrides?: ISourceMapPathOverrides): ISourceMapPathOverrides {
-        return sourceMapPathOverrides ? this.resolveWebRootPattern(webRoot, sourceMapPathOverrides, /*warnOnMissing=*/true) :
-            this.resolveWebRootPattern(webRoot, DefaultWebSourceMapPathOverrides, /*warnOnMissing=*/false);
-    }
-
-    /**
-     * Returns a copy of sourceMapPathOverrides with the ${webRoot} pattern resolved in all entries.
-     *
-     * dynamically required by test
-     */
-    private resolveWebRootPattern(webRoot: string, sourceMapPathOverrides: ISourceMapPathOverrides, warnOnMissing: boolean): ISourceMapPathOverrides {
-        const resolvedOverrides: ISourceMapPathOverrides = {};
-        for (let [key, value] of Object.entries(sourceMapPathOverrides)) {
-            const replacePatternValue = this.replaceWebRootInSourceMapPathOverridesEntry(webRoot, value, warnOnMissing);
-            resolvedOverrides[key] = path.resolve(replacePatternValue);
-        }
-
-        return resolvedOverrides;
-    }
-
-    private replaceWebRootInSourceMapPathOverridesEntry(webRoot: string, entry: string, warnOnMissing: boolean): string {
-        const webRootIndex = entry.indexOf('${webRoot}');
-        if (webRootIndex === 0) {
-            if (webRoot) {
-                return entry.replace('${webRoot}', webRoot);
-            } else if (warnOnMissing) {
-                logger.log('Warning: sourceMapPathOverrides entry contains ${webRoot}, but webRoot is not set');
-            }
-        } else if (webRootIndex > 0) {
-            logger.log('Warning: in a sourceMapPathOverrides entry, ${webRoot} is only valid at the beginning of the path');
-        }
-
-        return entry;
     }
 }
 

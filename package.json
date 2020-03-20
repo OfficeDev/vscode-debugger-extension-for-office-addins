@@ -32,11 +32,13 @@
     "rimraf": "^3.0.2",
     "sinon": "^9.0.1",
     "tslint": "^6.1.0",
+    "ts-node": "^8.7.0",
     "typescript": "^3.8.3"
   },
   "scripts": {
+    "build": "rimraf out && concurrently \"npm run tsc\"",
     "test": "mocha -r ts-node/register test/*.ts",
-    "build": "tsc -p tsconfig.json"
+    "tsc": "tsc -p tsconfig.json"
   },
   "contributes": {
     "debuggers": [

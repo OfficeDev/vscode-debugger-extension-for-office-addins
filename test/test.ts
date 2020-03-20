@@ -1,35 +1,50 @@
-// import * as assert from "assert";
-// import * as mocha from "mocha";
-// import * as utils from "./../src/utilities";
-// import {ISourceMapPathOverrides} from 'vscode-chrome-debug-core';
-// const adapterArgs: Object = {
-//     "port": 9222,
-//     "trace":"verbose",
-//     "url": "https://localhost:3000/taskpane.html?_host_Info=Excel$Win32$16.01$en-US$$$$0",
-//     "webRoot": "${workspaceFolder}",
-//     "sourceMaps": true,
-//     "sourceMapPathOverrides": {
-//       "webpack:///./src/*": "${workspaceFolder}/src/*",
-//     }
-//   }
+import * as assert from "assert";
+import * as fs from "fs";
+import * as mocha from "mocha";
+import * as path from "path";
+import * as utils from "./../src/utilities";
+import {ISourceMapPathOverrides} from 'vscode-chrome-debug-core';
+import {ChromeDebugSession} from 'vscode-chrome-debug-core';
+import {EdgeDebugSession} from './../src/edgeDebugSession';
 
-// describe(`Test VS Code Debug for Office Add-ins`, function () {
-//     before(`Setup Edge Debug Adapter`, async function () {
-//         this.timeout(0);
-//     }),
-//     describe(`Test Edge Debug Adapter`, function () {
-//         it("Validate sourceMapOverrides when specifying an override", async function () {
-//             const sourceMapOverrides: ISourceMapPathOverrides = utils.getSourceMapPathOverrides(adapterArgs["webRoot"], adapterArgs["sourceMapPathOverrides"]);
-//             assert.equal(true, sourceMapOverrides !== undefined, "Ensure returned sourceMapOverrides is defined");
-//             assert.equal(sourceMapOverrides['webpack:///./src/*'], `${process.cwd()}` + "\\${workspaceFolder}\\src\\*", "Ensure returned  sourceMapOverrides path is correct");
-//         });
-//         it("Validate sourceMapOverrides when not specifying an override", async function () {
-//             const sourceMapOverrides: ISourceMapPathOverrides = utils.getSourceMapPathOverrides(adapterArgs["webRoot"]);
-//             assert.equal(true, sourceMapOverrides !== undefined, "Ensure returned sourceMapOverrides is defined");
-//             assert.equal(5, Object. keys(sourceMapOverrides).length, "Ensure three default sourceMapOverrides are returned");
-//          });
-//     });
-//     after(`Teardown Edge Debug Adapter`, async function () {
-//         this.timeout(0);
-//     });
-// });
+describe(`Test VS Code Debug for Office Add-ins`, function () {
+    describe(`Basic tests for VS Code Debug for Office Add-ins`, function () {
+        it("Validate starting Chrome Debug Session does not throw exception", async function () {
+            ChromeDebugSession.run(EdgeDebugSession);
+            assert.doesNotThrow(() => ChromeDebugSession.run(EdgeDebugSession));
+        });
+        it("Validate sourceMapOverrides when specifying overrides", async function () {
+            const webRoot = process.cwd();
+            const overrides = utils.DefaultWebSourceMapPathOverrides;
+            const expOverrides: ISourceMapPathOverrides = {
+                'webpack:///./~/*': `${webRoot}\\node_modules\\*`,
+                'webpack:///./*': `${webRoot}\\*`,
+                'webpack:///*': `${webRoot}\\*`,
+                'webpack:///src/*': `${webRoot}\\*`,
+            };
+            const resolvedOverides =  utils.getSourceMapPathOverrides(webRoot, overrides);
+            assert.deepEqual(resolvedOverides, expOverrides);
+        });
+        it("Ignores the webRoot pattern when it's not at the beginning of the string", async function () {
+            const webRoot = process.cwd();
+            const override: ISourceMapPathOverrides = { 'webpack:///./*' : '/app/${workspaceFolder}/src' }
+            const resolvedWebRoot =  utils.resolveWebRootPattern(webRoot, override, false /* warnOnMissing) */);
+            assert.deepEqual(resolvedWebRoot, override);
+         });
+         it("Validate sourceMapOverrides when not specifying overrides", async function () {
+            const webRoot = process.cwd();
+            const expOverrides: ISourceMapPathOverrides = {
+                'webpack:///./~/*': `${webRoot}\\node_modules\\*`,
+                'webpack:///./*': `${webRoot}\\*`,
+                'webpack:///*': `${webRoot}\\*`,
+                'webpack:///src/*': `${webRoot}\\*`,
+            };
+            const resolvedOverides =  utils.getSourceMapPathOverrides(webRoot);
+            assert.deepEqual(resolvedOverides, expOverrides);
+         });
+         it("Validate adpater executable exists", async function () {
+             const adapterExePath =  utils.getAdapterPath();
+             assert.equal(fs.existsSync(adapterExePath), true);
+         });
+    });
+});
