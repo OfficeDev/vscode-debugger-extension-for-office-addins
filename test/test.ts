@@ -43,7 +43,7 @@ describe(`Test VS Code Debug for Office Add-ins`, function () {
             assert.deepEqual(resolvedOverides, expOverrides);
          });
          it("Validate adpater executable exists", async function () {
-             const adapterExePath =  utils.getAdapterPath();
+             const adapterExePath =  utils.getAdapterPath(true /* isTest */);
              assert.equal(fs.existsSync(adapterExePath), true);
          });
     });

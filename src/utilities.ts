@@ -4,6 +4,7 @@
 
 import {ISourceMapPathOverrides, logger, utils} from 'vscode-chrome-debug-core';
 import * as path from 'path';
+import { EdgeDebugAdapter } from './edgeDebugAdapter';
 
 export const DefaultWebSourceMapPathOverrides: ISourceMapPathOverrides = {
     'webpack:///./~/*': '${workspaceFolder}/node_modules/*',
@@ -14,11 +15,12 @@ export const DefaultWebSourceMapPathOverrides: ISourceMapPathOverrides = {
 
 const EDGE_ADAPTER_PATH = {
     OSX: '',
-    WINx64: path.resolve(__dirname, `${path.resolve(process.cwd())}/node_modules/debug-adapter-for-office-addins/out/lib/Networkproxy.exe`),
+    WINx64: path.resolve(__dirname, '../../node_modules/debug-adapter-for-office-addins/out/lib/Networkproxy.exe'),
+    WINx64Test: path.resolve(__dirname, `${path.resolve(process.cwd())}/node_modules/debug-adapter-for-office-addins/out/lib/Networkproxy.exe`),
     LINUX: ''
 };
 
-export function getAdapterPath(): string {
+export function getAdapterPath(isTest: boolean = false): string {
     const platform = utils.getPlatform();
     // There is no good way to get the system arch so detecting the program files dir
     let arch;
@@ -29,7 +31,12 @@ export function getAdapterPath(): string {
     }
     if (platform === utils.Platform.Windows) {
         if(arch === 'x64'){
-            return EDGE_ADAPTER_PATH.WINx64;
+            if (isTest) {
+                return EDGE_ADAPTER_PATH.WINx64Test
+            } else
+            {
+                return EDGE_ADAPTER_PATH.WINx64;
+            }
         } else if(arch === 'x86'){
             return null;
         }
