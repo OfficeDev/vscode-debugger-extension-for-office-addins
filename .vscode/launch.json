@@ -26,14 +26,26 @@
             "outFiles": ["${workspaceRoot}/out"]
         },
         {
-            "name": "test",
             "type": "node",
-            "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
-            "stopOnEntry": false,
-            "args": [ "test" ],
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out"
-        },
+            "request": "launch",
+            "name": "Debug Tests",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+              "-u",
+              "bdd",
+              "--timeout",
+              "999999",
+              "--colors",
+              "${workspaceFolder}/test",
+              "-r",
+              "ts-node/register",
+              "${workspaceFolder}/test/*.ts"
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "runtimeArgs": [
+              "--preserve-symlinks"
+            ]
+          }
 
     ]
 }
