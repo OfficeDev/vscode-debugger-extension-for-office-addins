@@ -18,7 +18,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "debug-adapter-for-office-addins": "^1.0.6",
+    "debug-adapter-for-office-addins": "^1.0.9",
     "source-map": "^0.7.3",
     "vscode-chrome-debug-core": "^6.8.8",
     "ws": "^7.2.1"
