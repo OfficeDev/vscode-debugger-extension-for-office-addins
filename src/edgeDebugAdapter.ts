@@ -19,13 +19,20 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         }
 
         logger.log(`Launching adapter at with arguments:', ${JSON.stringify(arguments)})`);
-        // Check exists
+
+        // Check that debug adpater executable exists
         if (!fs.existsSync(adapterExePath)) {
             if (utils.getPlatform() == utils.Platform.Windows) {
                 return utils.errP(`No Edge Diagnostics Adapter was found. Install the Edge Diagnostics Adapter (https://github.com/Microsoft/edge-diagnostics-adapter) and specify a valid 'adapterExecutable' path`);
             } else {
                 return utils.errP(`Edge debugging is only supported on Windows 10.`);
             }
+        }
+
+        // Check that user is running a supported version of NodeJs (10 or higher)
+        const nodeVersion = parseInt(process.version.slice(1));
+        if (nodeVersion < 10) {
+            return utils.errP(`Vscode-Debugger-For-Office-Addins require NodeJs 10 or higher.  Currently installed version is ${nodeVersion}`);
         }
 
         let adapterArgs: string[] = [];
