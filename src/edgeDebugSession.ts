@@ -8,7 +8,7 @@ import {EdgeDebugAdapter} from './edgeDebugAdapter';
 export class EdgeDebugSession extends ChromeDebugSession {
 
     public constructor(targetLinesStartAt1: boolean, isServer: boolean = false) {
-        super(targetLinesStartAt1, isServer, {adapter: EdgeDebugAdapter, extensionName: "vscode-edge-debug"});
+        super(targetLinesStartAt1, isServer, {adapter: EdgeDebugAdapter, extensionName: "vscode-debugger-extension-for-office-addins"});
     }
 }
 

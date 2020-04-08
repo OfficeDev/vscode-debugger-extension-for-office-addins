@@ -4,6 +4,7 @@
 
 import { ChromeDebugAdapter, IChromeDebugSessionOpts, ChromeDebugSession, utils, logger } from 'vscode-chrome-debug-core';
 import { EdgeDebugSession } from './edgeDebugSession';
+import { DebugProtocol } from 'vscode-debugprotocol';
 import * as edgeUtils from './utilities';
 import * as childProcess from 'child_process';
 import * as path from 'path';
@@ -73,16 +74,16 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
             this._adapterProc = childProcess.spawn(adapterLaunch, [], {
                 detached: false,
                 shell: true,
-                stdio: "ignore",
+                stdio: "pipe",
                 windowsHide: true
             });
 
-            this._adapterProc.on("error", (err) => {
+            this._adapterProc.stderr.on("error", (err) => {
                 logger.error(`Adapter error: ${err}`);
                 this.terminateSession(`${err}`);
             });
 
-            this._adapterProc.on("data", (data) => {
+            this._adapterProc.stdout.on("data", (data) => {
                 logger.log(`Adapter output: ${data}`)
             });
 
@@ -118,6 +119,11 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         return this._launchAdapter(args).then((attachArgs: any) => {
             return super.attach(attachArgs);
         });
+    }
+
+    public disconnect(args: DebugProtocol.DisconnectArguments) {
+        super.disconnect(args);
+        this.clearEverything();
     }
 
     public clearEverything(): void {
