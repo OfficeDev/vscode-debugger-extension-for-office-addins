@@ -5,18 +5,19 @@
 import { ChromeDebugAdapter, IChromeDebugSessionOpts, ChromeDebugSession, utils, logger } from 'vscode-chrome-debug-core';
 import { EdgeDebugSession } from './edgeDebugSession';
 import { DebugProtocol } from 'vscode-debugprotocol';
-import * as edgeUtils from './utilities';
+import * as extensionUtils from './utilities';
 import * as childProcess from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 
 export class EdgeDebugAdapter extends ChromeDebugAdapter {
     private _adapterProc: childProcess.ChildProcess;
+    private _adapterPort: number;
 
     private _launchAdapter(args?: any): Promise<any> {
         let adapterExePath = args.runtimeExecutable;
         if (!adapterExePath) {
-            adapterExePath = edgeUtils.getAdapterPath();
+            adapterExePath = extensionUtils.getAdapterPath();
         }
 
         logger.log(`Launching adapter at with arguments:', ${JSON.stringify(arguments)})`);
@@ -42,9 +43,10 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         }
         // We always tell the adpater what port to listen on so there's no shared info between the adapter and the extension
         let portCmdArg = '--port=' + args.port;
+        this._adapterPort = args.port;
         adapterArgs.push(portCmdArg);
 
-        args.sourceMapPathOverrides = edgeUtils.getSourceMapPathOverrides(args.webRoot, args.sourceMapPathOverrides);
+        args.sourceMapPathOverrides = extensionUtils.getSourceMapPathOverrides(args.webRoot, args.sourceMapPathOverrides);
 
         if (args.url) {
             let launchUrlArg = '--launch=' + args.url;
@@ -66,7 +68,7 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
                 return utils.errP(`Sever already listening on :9222 returned ${ex}`);
             }
 
-        }, error => {
+        }, () => {
             const adapterPath = path.resolve(__dirname, '../../node_modules/debug-adapter-for-office-addins');
             const adpaterFile = path.join(adapterPath, "out/src/edgeAdapter.js");
             const adapterLaunch: string = `node ${adpaterFile}  --servetools --diagnostics`;
@@ -121,9 +123,14 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         });
     }
 
-    public disconnect(args: DebugProtocol.DisconnectArguments) {
-        super.disconnect(args);
-        this.clearEverything();
+    public disconnect(args: DebugProtocol.DisconnectArguments):Promise<void> {
+        const closeDebuggerInstanceUrl: string = `http://127.0.0.1:${this._adapterPort}/json/close/${this._chromeConnection.attachedTarget.id}`;
+        // Call adpater service to close debugger instance
+        return utils.getURL(closeDebuggerInstanceUrl).then(() => {
+            // Do additional clean-up
+            this.clearEverything();
+            super.disconnect(args);
+        });
     }
 
     public clearEverything(): void {
@@ -131,7 +138,6 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
             this._adapterProc.kill('SIGINT');
             this._adapterProc = null;
         }
-
         super.clearTargetContext();
     }
 }
