@@ -4,7 +4,6 @@
 
 import {ISourceMapPathOverrides, logger, utils} from 'vscode-chrome-debug-core';
 import * as path from 'path';
-import { EdgeDebugAdapter } from './edgeDebugAdapter';
 
 export const DefaultWebSourceMapPathOverrides: ISourceMapPathOverrides = {
     'webpack:///./~/*': '${workspaceFolder}/node_modules/*',
