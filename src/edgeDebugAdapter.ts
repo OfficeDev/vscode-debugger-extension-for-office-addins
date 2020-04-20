@@ -14,7 +14,7 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
     private _adapterProc: childProcess.ChildProcess;
     private _adapterPort: number;
 
-    private _launchAdapter(args?: any): Promise<any> {
+    private async _launchAdapter(args?: any): Promise<any> {
         let adapterExePath = args.runtimeExecutable;
         if (!adapterExePath) {
             adapterExePath = extensionUtils.getAdapterPath();
@@ -46,6 +46,7 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         this._adapterPort = args.port;
         adapterArgs.push(portCmdArg);
 
+        // Resolve sourceMapOverrides
         args.sourceMapPathOverrides = extensionUtils.getSourceMapPathOverrides(args.webRoot, args.sourceMapPathOverrides);
 
         if (args.url) {
@@ -54,43 +55,63 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         }
 
         // The adapter might already be running if so don't spawn a new one
-        return utils.getURL(`http://127.0.0.1:${args.port}/json/version`).then((jsonResponse: any) => {
-            try {
-                const responseArray = JSON.parse(jsonResponse);
-                let targetBrowser: string = responseArray.Browser;
-                targetBrowser = targetBrowser.toLocaleLowerCase();
-                if (targetBrowser.indexOf('edge') > -1) {
-                    return Promise.resolve(args);
-                }
+        try {
+            // Ping adapter service to check if is started. If it isn't the ping will throw
+            // an error and then we will start it by calling startEdgeAdapter
+            await utils.getURL(`http://127.0.0.1:${args.port}/json/version`);
 
-                return utils.errP(`Sever for ${targetBrowser} already listening on :9222`);
-            } catch (ex) {
-                return utils.errP(`Sever already listening on :9222 returned ${ex}`);
+            // Check to see if running Edge and not Edge Chromium
+            if (await this.isRunningEdge()) {
+                return Promise.resolve(args);
+            } else {
+                return utils.errP("No Edge instances found. Not running a supported version of Edge");
             }
+        } catch (ex) {
+            // Adapter isn't running so start it
+            await this.startEdgeAdapater(args);
+        }
+    }
 
-        }, () => {
-            const adapterPath = path.resolve(__dirname, '../../node_modules/debug-adapter-for-office-addins');
-            const adpaterFile = path.join(adapterPath, "out/src/edgeAdapter.js");
-            const adapterLaunch: string = `node ${adpaterFile}  --servetools --diagnostics`;
-            logger.log(`spawn('${adapterLaunch}')`);
-            this._adapterProc = childProcess.spawn(adapterLaunch, [], {
-                detached: false,
-                shell: true,
-                stdio: "pipe",
-                windowsHide: true
-            });
-
-            this._adapterProc.stderr.on("error", (err) => {
-                logger.error(`Adapter error: ${err}`);
-                this.terminateSession(`${err}`);
-            });
-
-            this._adapterProc.stdout.on("data", (data) => {
-                logger.log(`Adapter output: ${data}`)
-            });
-
-            return Promise.resolve(args);
+    private async startEdgeAdapater(args): Promise<any> {
+        const adapterPath = path.resolve(__dirname, '../../node_modules/debug-adapter-for-office-addins');
+        const adpaterFile = path.join(adapterPath, "out/src/edgeAdapter.js");
+        const adapterLaunch: string = `node ${adpaterFile}  --servetools --diagnostics`;
+        logger.log(`spawn('${adapterLaunch}')`);
+        this._adapterProc = childProcess.spawn(adapterLaunch, [], {
+            detached: false,
+            shell: true,
+            stdio: "pipe",
+            windowsHide: true
         });
+
+        this._adapterProc.stderr.on("error", (err) => {
+            logger.error(`Adapter error: ${err}`);
+            this.terminateSession(`${err}`);
+        });
+
+        this._adapterProc.stdout.on("data", (data) => {
+            logger.log(`Adapter output: ${data}`)
+        });
+
+        try {
+            // Verify adapter is running and the the user is running the correct version of Edge
+            await utils.getURL(`http://127.0.0.1:${args.port}/json/version`);
+            // Check to see if running Edge and not Edge Chromium
+            if (await this.isRunningEdge()) {
+                return Promise.resolve(args);
+            } else {
+                return utils.errP("No Edge instances found. Not running a supported version of Edge");
+            }
+        } catch (err) {
+            return utils.errP(`Error connecting to Debug Adapter: ${err}`);
+        }
+    }
+
+    private async isRunningEdge(): Promise<boolean> {
+        const edgeInstancesUrl: string = `http://127.0.0.1:${this._adapterPort}/json/list`;
+        const jsonResponse = await utils.getURL(edgeInstancesUrl);
+        const edgeInstancesArray = JSON.parse(jsonResponse);
+        return edgeInstancesArray.length > 0;
     }
 
     public constructor(opts?: IChromeDebugSessionOpts, debugSession?: ChromeDebugSession) {
@@ -103,34 +124,29 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
     public launch(args: any): Promise<void> {
         logger.log(`Launching Edge`);
 
-        let launchUrl: string;
-        if (args.file) {
-            launchUrl = 'file:///' + path.resolve(args.cwd, args.file);
-        } else if (args.url) {
-            launchUrl = args.url;
-        }
-
-        return this._launchAdapter(args).then((attachArgs: any) => {
-            return super.attach(attachArgs);
+        return this._launchAdapter(args).then(() => {
+            return super.attach(args);
         });
     }
 
     public attach(args: any): Promise<void> {
         logger.log(`Attaching to Edge`);
 
-        return this._launchAdapter(args).then((attachArgs: any) => {
-            return super.attach(attachArgs);
+        return this._launchAdapter(args).then(() => {
+            return super.attach(args);
         });
     }
 
-    public disconnect(args: DebugProtocol.DisconnectArguments):Promise<void> {
-        const closeDebuggerInstanceUrl: string = `http://127.0.0.1:${this._adapterPort}/json/close/${this._chromeConnection.attachedTarget.id}`;
-        // Call adpater service to close debugger instance
-        return utils.getURL(closeDebuggerInstanceUrl).then(() => {
-            // Do additional clean-up
-            this.clearEverything();
-            super.disconnect(args);
-        });
+    public disconnect(args: DebugProtocol.DisconnectArguments): Promise<void> {
+        if (this._chromeConnection.attachedTarget !== undefined) {
+            const closeDebuggerInstanceUrl: string = `http://127.0.0.1:${this._adapterPort}/json/close/${this._chromeConnection.attachedTarget.id}`;
+            // Call adpater service to close debugger instance
+            return utils.getURL(closeDebuggerInstanceUrl).then(() => {
+                // Do additional clean-up
+                this.clearEverything();
+                super.disconnect(args);
+            });
+        }
     }
 
     public clearEverything(): void {
