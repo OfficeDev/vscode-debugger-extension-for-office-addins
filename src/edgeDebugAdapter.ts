@@ -26,11 +26,11 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         if (!fs.existsSync(adapterExePath)) {
             if (utils.getPlatform() == utils.Platform.Windows) {
                 const error: string = "No Edge Diagnostics Adapter was found. Install the Edge Diagnostics Adapter (https://github.com/OfficeDev/debug-adapter-for-office-addins) and specify a valid 'adapterExecutable' path";
-                usageDataObject.sendUsageDataException("pre-reqs", error);
+                usageDataObject.sendUsageDataException("_launchAdapter", error);
                 return utils.errP(error);
             } else {
                 const error: string = "Edge debugging is only supported on Windows 10.";
-                usageDataObject.sendUsageDataException("pre-reqs", error);
+                usageDataObject.sendUsageDataException("_launchAdapter", error);
                 return utils.errP(error);
             }
         }
@@ -39,7 +39,7 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         const nodeVersion = parseInt(process.version.slice(1));
         if (nodeVersion < 10) {
             const error: string = `Vscode-Debugger-For-Office-Addins require NodeJs 10 or higher.  Currently installed version is ${nodeVersion}`;
-            usageDataObject.sendUsageDataException("pre-reqs", error);
+            usageDataObject.sendUsageDataException("_launchAdapter", error);
             return utils.errP(error);
         }
 
@@ -70,10 +70,10 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
             targetBrowser = targetBrowser.toLocaleLowerCase();
             if (targetBrowser.indexOf('edge') === -1) {
                 const error: string = `Server for ${targetBrowser} already listening on ${this._adapterPort}`;
-                usageDataObject.sendUsageDataException("pre-reqs", error);
+                usageDataObject.sendUsageDataException("_launchAdapter", error);
                 return utils.errP(error);
             }
-            usageDataObject.sendUsageDataSuccessEvent("adapterStarted");
+            usageDataObject.sendUsageDataSuccessEvent("_launchAdapter");
             return Promise.resolve(args);
         } catch {
             // Adapter isn't running so start it
@@ -104,10 +104,10 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
 
         if (this._adapterProc === undefined) {
             const error: string = "Unable to start Edge Debug Adapter";
-            usageDataObject.sendUsageDataException("pre-reqs", error);
+            usageDataObject.sendUsageDataException("_launchAdapter", error);
             return utils.errP(error);
         }
-        usageDataObject.sendUsageDataSuccessEvent("adapterStarted");
+        usageDataObject.sendUsageDataSuccessEvent("_launchAdapter");
         return Promise.resolve(args);
     }
 
