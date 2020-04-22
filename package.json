@@ -1,6 +1,6 @@
 {
-  "name": "vscode-debugger-for-office-add-ins",
-  "displayName": "VS Code Debugger for Office Add-ins",
+  "name": "vscode-debugger-extension-for-office-add-ins",
+  "displayName": "VS Code Debugger Extension for Office Add-ins",
   "version": "1.0.0",
   "icon": "images/icon.png",
   "description": "Debug your Desktop Office Taskpane Add-ins in VS Code.",
@@ -19,6 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "debug-adapter-for-office-addins": "^1.0.9",
+    "office-addin-usage-data": "^1.1.3",
     "source-map": "^0.7.3",
     "vscode-chrome-debug-core": "^6.8.8",
     "ws": "^7.2.1"
