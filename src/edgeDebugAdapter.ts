@@ -58,14 +58,14 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         try {
             // Ping adapter service to check if is started. If it isn't the ping will throw
             // an error and then we will start it by calling startEdgeAdapter
-            await utils.getURL(`http://127.0.0.1:${args.port}/json/version`);
-
-            // Check to see if running Edge and not Edge Chromium
-            if (await this.isRunningEdge()) {
+            const jsonResponse = await utils.getURL(`http://127.0.0.1:${args.port}/json/version`);
+            const responseArray = JSON.parse(jsonResponse);
+            let targetBrowser: string = responseArray.Browser;
+            targetBrowser = targetBrowser.toLocaleLowerCase();
+            if (targetBrowser.indexOf('edge') > -1) {
                 return Promise.resolve(args);
-            } else {
-                return utils.errP("No Edge instances found. Not running a supported version of Edge");
             }
+            return utils.errP(`Server for ${targetBrowser} already listening on :9222`);
         } catch (ex) {
             // Adapter isn't running so start it
             await this.startEdgeAdapater(args);
@@ -90,28 +90,13 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         });
 
         this._adapterProc.stdout.on("data", (data) => {
-            logger.log(`Adapter output: ${data}`)
+            logger.log(`Adapter output: ${data}`);
         });
 
-        try {
-            // Verify adapter is running and the the user is running the correct version of Edge
-            await utils.getURL(`http://127.0.0.1:${args.port}/json/version`);
-            // Check to see if running Edge and not Edge Chromium
-            if (await this.isRunningEdge()) {
-                return Promise.resolve(args);
-            } else {
-                return utils.errP("No Edge instances found. Not running a supported version of Edge");
-            }
-        } catch (err) {
-            return utils.errP(`Error connecting to Debug Adapter: ${err}`);
+        if (this._adapterProc === undefined) {
+            return utils.errP(`Unable to start Edge Debug Adapter`);
         }
-    }
-
-    private async isRunningEdge(): Promise<boolean> {
-        const edgeInstancesUrl: string = `http://127.0.0.1:${this._adapterPort}/json/list`;
-        const jsonResponse = await utils.getURL(edgeInstancesUrl);
-        const edgeInstancesArray = JSON.parse(jsonResponse);
-        return edgeInstancesArray.length > 0;
+        return Promise.resolve(args);
     }
 
     public constructor(opts?: IChromeDebugSessionOpts, debugSession?: ChromeDebugSession) {
