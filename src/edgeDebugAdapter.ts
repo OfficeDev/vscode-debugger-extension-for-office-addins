@@ -5,7 +5,7 @@
 import { ChromeDebugAdapter, IChromeDebugSessionOpts, ChromeDebugSession, utils, logger } from 'vscode-chrome-debug-core';
 import { EdgeDebugSession } from './edgeDebugSession';
 import { DebugProtocol } from 'vscode-debugprotocol';
-import * as extensionUtils from './utilities';
+import  { getAdapterPath, getSourceMapPathOverrides, usageDataObject} from './utilities';
 import * as childProcess from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -17,7 +17,7 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
     private async _launchAdapter(args?: any): Promise<any> {
         let adapterExePath = args.runtimeExecutable;
         if (!adapterExePath) {
-            adapterExePath = extensionUtils.getAdapterPath();
+            adapterExePath = getAdapterPath();
         }
 
         logger.log(`Launching adapter at with arguments:', ${JSON.stringify(arguments)})`);
@@ -25,16 +25,22 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         // Check that debug adpater executable exists
         if (!fs.existsSync(adapterExePath)) {
             if (utils.getPlatform() == utils.Platform.Windows) {
-                return utils.errP(`No Edge Diagnostics Adapter was found. Install the Edge Diagnostics Adapter (https://github.com/Microsoft/edge-diagnostics-adapter) and specify a valid 'adapterExecutable' path`);
+                const error: string = "No Edge Diagnostics Adapter was found. Install the Edge Diagnostics Adapter (https://github.com/OfficeDev/debug-adapter-for-office-addins) and specify a valid 'adapterExecutable' path";
+                usageDataObject.sendUsageDataException("_launchAdapter", error);
+                return utils.errP(error);
             } else {
-                return utils.errP(`Edge debugging is only supported on Windows 10.`);
+                const error: string = "Edge debugging is only supported on Windows 10.";
+                usageDataObject.sendUsageDataException("_launchAdapter", error);
+                return utils.errP(error);
             }
         }
 
         // Check that user is running a supported version of NodeJs (10 or higher)
         const nodeVersion = parseInt(process.version.slice(1));
         if (nodeVersion < 10) {
-            return utils.errP(`Vscode-Debugger-For-Office-Addins require NodeJs 10 or higher.  Currently installed version is ${nodeVersion}`);
+            const error: string = `Vscode-Debugger-For-Office-Addins require NodeJs 10 or higher.  Currently installed version is ${nodeVersion}`;
+            usageDataObject.sendUsageDataException("_launchAdapter", error);
+            return utils.errP(error);
         }
 
         let adapterArgs: string[] = [];
@@ -47,7 +53,7 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         adapterArgs.push(portCmdArg);
 
         // Resolve sourceMapOverrides
-        args.sourceMapPathOverrides = extensionUtils.getSourceMapPathOverrides(args.webRoot, args.sourceMapPathOverrides);
+        args.sourceMapPathOverrides = getSourceMapPathOverrides(args.webRoot, args.sourceMapPathOverrides);
 
         if (args.url) {
             let launchUrlArg = '--launch=' + args.url;
@@ -62,11 +68,13 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
             const responseArray = JSON.parse(jsonResponse);
             let targetBrowser: string = responseArray.Browser;
             targetBrowser = targetBrowser.toLocaleLowerCase();
-            if (targetBrowser.indexOf('edge') > -1) {
-                return Promise.resolve(args);
+            if (targetBrowser.indexOf('edge') === -1) {
+                const error: string = `Server for ${targetBrowser} already listening on ${this._adapterPort}`;
+                return utils.errP(error);
             }
-            return utils.errP(`Server for ${targetBrowser} already listening on :9222`);
-        } catch (ex) {
+            usageDataObject.sendUsageDataSuccessEvent("_launchAdapter");
+            return Promise.resolve(args);
+        } catch {
             // Adapter isn't running so start it
             await this.startEdgeAdapater(args);
         }
@@ -94,8 +102,11 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
         });
 
         if (this._adapterProc === undefined) {
-            return utils.errP(`Unable to start Edge Debug Adapter`);
+            const error: string = "Unable to start Edge Debug Adapter";
+            usageDataObject.sendUsageDataException("_launchAdapter", error);
+            return utils.errP(error);
         }
+        usageDataObject.sendUsageDataSuccessEvent("_launchAdapter");
         return Promise.resolve(args);
     }
 

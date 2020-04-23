@@ -4,6 +4,14 @@
 
 import {ISourceMapPathOverrides, logger, utils} from 'vscode-chrome-debug-core';
 import * as path from 'path';
+import * as usageData from "office-addin-usage-data";
+
+// Usage data defaults
+export const usageDataObject: usageData.OfficeAddinUsageData = new usageData.OfficeAddinUsageData({
+    projectName: "vscode-debugger-extension-for-office-add-ins",
+    instrumentationKey: usageData.instrumentationKeyForOfficeAddinCLITools,
+    raisePrompt: false
+});
 
 export const DefaultWebSourceMapPathOverrides: ISourceMapPathOverrides = {
     'webpack:///./~/*': '${workspaceFolder}/node_modules/*',
