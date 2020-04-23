@@ -70,7 +70,6 @@ export class EdgeDebugAdapter extends ChromeDebugAdapter {
             targetBrowser = targetBrowser.toLocaleLowerCase();
             if (targetBrowser.indexOf('edge') === -1) {
                 const error: string = `Server for ${targetBrowser} already listening on ${this._adapterPort}`;
-                usageDataObject.sendUsageDataException("_launchAdapter", error);
                 return utils.errP(error);
             }
             usageDataObject.sendUsageDataSuccessEvent("_launchAdapter");
