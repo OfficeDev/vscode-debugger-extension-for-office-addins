@@ -1,6 +1,6 @@
 # VS Code Debugger for Office Add-ins
 
-The Visual Studio Debugger Extension for Office Add-ins allows you to use F5 in VS Code to debug your Office Add-in. This debugging mode is dynamic, allowing you to set breakpoints while code is running. You can see changes in your code immediately while the debugger is attached, all without losing your debugging session. Your code changes also persist, so you can see the results of multiple changes to your code.
+The Visual Studio Debugger Extension for Office Add-ins allows you to use F5 in VS Code to debug your Office Add-in against the Edge runtime. This debugging mode is dynamic, allowing you to set breakpoints while code is running. You can see changes in your code immediately while the debugger is attached, all without losing your debugging session. Your code changes also persist, so you can see the results of multiple changes to your code.
 
 ## Pre-Requisites
 
