@@ -15,7 +15,7 @@ The Visual Studio Debugger Extension for Office Add-ins allows you to use F5 in 
 1. [Create a new project with the latest version of Yo Office](https://docs.microsoft.com/office/dev/add-ins/quickstarts/excel-quickstart-jquery?tabs=yeomangenerator). Follow the prompts within the command line to set up your project. You can choose any language or type of project to suit your needs.
 
 2. Open a command prompt as administrator
-***insert picture of right clickling command prompt***
+![Command prompt options, including "run as administrator" in Windows 10](../images/CommandPromptAdmin.jpg)
 
 3. Navigate to your project directory.
 
@@ -53,7 +53,7 @@ The Visual Studio Debugger Extension for Office Add-ins allows you to use F5 in 
 
 11. Set a breakpoint in your project's task pane file. You can set breakpoints in VS Code by hovering next to a line of code and selecting the red circle which appears.
 
-***may need a picture here to explain where you are talking about***
+![A red circle appears on a line of code in VS Code](../images/breakpoint.jpg)
 
 12. Run your add-in. You will see that breakpoints have been hit and you can inspect local variables.
 
