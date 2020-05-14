@@ -4,7 +4,7 @@ The Visual Studio Debugger Extension for Office Add-ins allows you to use F5 in 
 
 ![VS Code Debugger Extension debugging a section of Excel Add-ins](../images/vs-debugger-extension-for-office-addins.jpg)
 
-## Pre-Requisites
+## Prerequisites
 
 - [Visual Studio Code](https://code.visualstudio.com/) (must be run as an administrator)
 - [Node.js (version 10+)](https://nodejs.org/)
@@ -41,8 +41,8 @@ The Visual Studio Debugger Extension for Office Add-ins allows you to use F5 in 
 	    "trace": "verbose",
 	    "url": "https://localhost:3000/taskpane.html?_host_Info=HOST$Win32$16.01$en-US$$$$0",
 	    "webRoot": "${workspaceFolder}",
-	    "timeout": 45000     
-    	}
+	    "timeout": 45000
+	    }
 ```
 
 7. In the section of JSON you just copied, find the "url" section. In this URL, you will need to replace the uppercase HOST text with the host application for your Office add-in. For example, if your Office add-in is for Excel, your URL value would be "https://localhost:3000/taskpane.html?_host_Info=<strong>Excel</strong>$Win32$16.01$en-US$$$$0".
