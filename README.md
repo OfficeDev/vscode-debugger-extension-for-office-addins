@@ -7,7 +7,7 @@ The Visual Studio Debugger Extension for Office Add-ins allows you to use F5 in 
 - [Visual Studio Code](https://code.visualstudio.com/) (must be run as an administrator)
 - [Node.js (version 10+)](https://nodejs.org/)
 - Windows 10
-- Microsoft Edge
+- [Microsoft Edge](https://www.microsoft.com/edge)
 - [Yo Office](https://github.com/OfficeDev/generator-office).
 
 ## Install and use
