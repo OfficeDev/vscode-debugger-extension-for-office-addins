@@ -21,8 +21,7 @@
   "dependencies": {
     "debug-adapter-for-office-addins": "^1.0.10",
     "office-addin-usage-data": "^1.1.4",
-    "source-map": "^0.7.3",
-    "vscode-chrome-debug-core": "^6.8.8",
+    "vscode-chrome-debug-core": "3.23.11",
     "ws": "^7.3.0"
   },
   "devDependencies": {
