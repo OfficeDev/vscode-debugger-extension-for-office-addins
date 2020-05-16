@@ -2,7 +2,7 @@
 
 The Office Addin Debugger extension allows you to use F5 in VS Code to debug your Office Add-in against the Edge runtime. This debugging mode is dynamic, allowing you to set breakpoints while code is running. You can see changes in your code immediately while the debugger is attached, all without losing your debugging session. Your code changes also persist, so you can see the results of multiple changes to your code. The following image shows this extension in action.
 
-![VS Code Debugger Extension debugging a section of Excel Add-ins](../images/vs-debugger-extension-for-office-addins.jpg)
+![VS Code Debugger Extension debugging a section of Excel Add-ins](https://github.com/TCourtneyOwen/vscode-debugger-extension-for-office-addins/blob/change-extension-name-for-store/images/vs-debugger-extension-for-office-addins.png?raw=true)
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@ The Office Addin Debugger extension allows you to use F5 in VS Code to debug you
 1. [Create a new project with the latest version of Yo Office](https://docs.microsoft.com/office/dev/add-ins/quickstarts/excel-quickstart-jquery?tabs=yeomangenerator). Follow the prompts within the command line to set up your project. You can choose any language or type of project to suit your needs.
 
 2. Open a command prompt as administrator
-![Command prompt options, including "run as administrator" in Windows 10](../images/CommandPromptAdmin.jpg)
+![Command prompt options, including "run as administrator" in Windows 10](https://github.com/TCourtneyOwen/vscode-debugger-extension-for-office-addins/blob/change-extension-name-for-store/images/CommandPromptAdmin.png?raw=true)
 
 3. Navigate to your project directory.
 
@@ -55,7 +55,7 @@ The Office Addin Debugger extension allows you to use F5 in VS Code to debug you
 
 11. Set a breakpoint in your project's task pane file. You can set breakpoints in VS Code by hovering next to a line of code and selecting the red circle which appears.
 
-![A red circle appears on a line of code in VS Code](../images/breakpoint.jpg)
+![A red circle appears on a line of code in VS Code](https://github.com/TCourtneyOwen/vscode-debugger-extension-for-office-addins/blob/change-extension-name-for-store/images/breakpoint.png?raw=true)
 
 12. Run your add-in. You will see that breakpoints have been hit and you can inspect local variables.
 
