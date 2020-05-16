@@ -1,2 +1,2 @@
-# VS Code Debugger for Office Add-ins
+# Office Addin Debugger
 
