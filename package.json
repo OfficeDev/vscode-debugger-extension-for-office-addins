@@ -1,6 +1,6 @@
 {
-  "name": "office-addin-debugger",
-  "displayName": "Office Addin Debugger",
+  "name": "office-add-in-debugger",
+  "displayName": "Office Add-in Debugger",
   "version": "1.0.0",
   "icon": "images/icon.png",
   "description": "Debug your Desktop Office Taskpane Add-ins in VS Code.",
