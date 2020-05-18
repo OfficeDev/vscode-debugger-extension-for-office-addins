@@ -1,9 +1,12 @@
 {
-  "name": "vscode-debugger-extension-for-office-add-ins",
-  "displayName": "VS Code Debugger Extension for Office Add-ins",
+  "name": "microsoft-office-add-in-debugger",
+  "displayName": "Microsoft Office Add-in Debugger",
   "version": "1.0.0",
   "icon": "images/icon.png",
   "description": "Debug your Desktop Office Taskpane Add-ins in VS Code.",
+  "author": {
+    "name": "Microsoft Corporation"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/OfficeDev/vscode-debugger-extension-for-office-addins"
@@ -14,6 +17,12 @@
   "engines": {
     "vscode": "*"
   },
+  "keywords": [
+    "Microsoft",
+    "office",
+    "add-in",
+    "debugger"
+  ],
   "categories": [
     "Debuggers"
   ],

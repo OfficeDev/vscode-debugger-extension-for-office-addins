@@ -1,10 +1,10 @@
-# Office Addin Debugger Extension for Visual Studio Code
+# Microsoft Office Add-in Debugger for Visual Studio Code
 
-The "Office Addin Debugger" Extension for Visual Studio Code allows you to use F5 to debug your Office Add-in against the Edge runtime.
+The "Microsoft Office Add-in Debugger" Extension for Visual Studio Code allows you to use F5 to debug your Office Add-in against the Edge runtime.
 
 This debugging mode is dynamic, allowing you to set breakpoints while code is running. You can see changes in your code immediately while the debugger is attached, all without losing your debugging session. Your code changes also persist, so you can see the results of multiple changes to your code. The following image shows this extension in action.
 
-![Office Addin Debugger Extension debugging a section of Excel Add-ins](https://github.com/vscode-debugger-extension-for-office-addins/blob/change-extension-name-for-store/images/vs-debugger-extension-for-office-addins.jpg?raw=true)
+![Microsoft Office Add-in Debugger Extension debugging Excel Add-in code](https://github.com/OfficeDev/vscode-debugger-extension-for-office-addins/blob/master/images/OfficeAddinDebugger.png?raw=true)
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ These instructions assume you have experience using the command line, understand
 1. If you do not already have a project to work with, [create a new project with the latest version of Yo Office](https://docs.microsoft.com/office/dev/add-ins/quickstarts/excel-quickstart-jquery?tabs=yeomangenerator). If you already have a project you would like to use, there is no need to create a new one.
 
 2. Open a command prompt as administrator
-![Command prompt options, including "run as administrator" in Windows 10](https://github.com/vscode-debugger-extension-for-office-addins/blob/change-extension-name-for-store/images/CommandPromptAdmin.jpg?raw=true)
+![Command prompt options, including "run as administrator" in Windows 10](https://github.com/OfficeDev/vscode-debugger-extension-for-office-addins/blob/master/images/CommandPromptAdmin.png?raw=true)
 
 > To open Visual Studio Code as an administrator, select the **run as administrator** option when opening Visual Studio Code after searching for it in Windows.
 
@@ -62,7 +62,7 @@ These instructions assume you have experience using the command line, understand
 
 11. Set a breakpoint in your project's task pane file. You can set breakpoints in VS Code by hovering next to a line of code and selecting the red circle which appears.
 
-![A red circle appears on a line of code in VS Code](https://github.com/vscode-debugger-extension-for-office-addins/blob/change-extension-name-for-store/images/breakpoint.jpg?raw=true)
+![A red circle appears on a line of code in VS Code](https://github.com/OfficeDev/vscode-debugger-extension-for-office-addins/blob/master/images/breakpoint.png?raw=true)
 
 12. Run your add-in. You will see that breakpoints have been hit and you can inspect local variables.
 
