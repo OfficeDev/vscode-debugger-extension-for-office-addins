@@ -11,7 +11,7 @@ This debugging mode is dynamic, allowing you to set breakpoints while code is ru
 - [Visual Studio Code](https://code.visualstudio.com/) (must be run as an administrator)
 - [Node.js (version 10+)](https://nodejs.org/)
 - Windows 10
-- [Microsoft Edge](https://www.microsoft.com/edge)
+- [Microsoft Edge (Not Chromium](https://support.microsoft.com/en-us/microsoft-edge-legacy)
 - [Yo Office](https://github.com/OfficeDev/generator-office), if you need to create a new project
 
 These instructions assume you have experience using the command line, understand basic JavaScript, and have created an Office add-in project before using the Yo OfficeDev/ generator-office).
