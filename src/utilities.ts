@@ -3,6 +3,7 @@
  *--------------------------------------------------------*/
 
 import {ISourceMapPathOverrides, logger, utils} from 'vscode-chrome-debug-core';
+import * as os from 'os';
 import * as path from 'path';
 import * as usageData from "office-addin-usage-data";
 
@@ -49,6 +50,12 @@ export function getAdapterPath(isTest: boolean = false): string {
         }
     }
     return null;
+}
+
+export function isSupportedWindowsVersion(): boolean {
+    // verify Windows OS version to ensure user is running Windows 10 1903 version (build 10.0.18362) or greater
+    const versionArray = os.release().split('.').map(function(version) { return +  version; })
+    return utils.getPlatform() === utils.Platform.Windows && versionArray[0] == 10 && versionArray[2] >= 18362
 }
 
 export function getSourceMapPathOverrides(webRoot: string, sourceMapPathOverrides?: ISourceMapPathOverrides): ISourceMapPathOverrides {
