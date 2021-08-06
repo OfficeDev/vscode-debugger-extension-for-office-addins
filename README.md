@@ -41,14 +41,24 @@ These instructions assume you have experience using the command line, understand
 
 ```JSON
 	    {
-	    "type": "office-addin",
-	    "request": "attach",
-	    "name": "Attach to Office Add-ins",
-	    "port": 9222,
-	    "trace": "verbose",
-	    "url": "https://localhost:3000/taskpane.html?_host_Info=HOST$Win32$16.01$en-US$$$$0",
-	    "webRoot": "${workspaceFolder}",
-	    "timeout": 45000
+	      "name": "Attach to Office Add-ins (Edge Legacy)",
+	      "type": "office-addin",
+	      "request": "attach",
+	      "url": "https://localhost:3000/taskpane.html?_host_Info=HOST$Win32$16.01$en-US$$$$0",
+	      "port": 9222,
+	      "timeout": 45000,
+	      "webRoot": "${workspaceFolder}",
+	      "trace": "verbose",
+	    },
+	    {
+	      "name": "Attach to Office Add-in (Edge Chromium)",
+	      "type": "edge",
+	      "request": "attach",
+	      "useWebView": "advanced",
+	      "port": 9229,
+	      "timeout": 600000,
+	      "webRoot": "${workspaceRoot}",
+	      "trace": "verbose"
 	    }
 ```
 
@@ -58,7 +68,7 @@ These instructions assume you have experience using the command line, understand
 
 9. Return to Visual Studio Code and choose **View > Debug** or enter **CTRL + SHIFT + D** to switch to debug view.
 
-10. From the Debug options, choose **Attach to Office Add-ins**. Select **F5** or choose **Debug -> Start Debugging** from the menu to begin debugging.
+10. From the Debug options, choose **Attach to Office Add-ins (Edge Chromium)** or **Attach to Office Add-ins (Edge Legacy)** depending on which Edge version you have. Select **F5** or choose **Debug -> Start Debugging** from the menu to begin debugging.
 
 11. Set a breakpoint in your project's task pane file. You can set breakpoints in VS Code by hovering next to a line of code and selecting the red circle which appears.
 
